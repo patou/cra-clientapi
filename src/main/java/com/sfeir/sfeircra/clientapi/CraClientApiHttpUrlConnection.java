@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -29,8 +28,7 @@ public class CraClientApiHttpUrlConnection {
     }
 
     public String login(String login, String password) {
-        InputStream in = null;
-        try {
+         try {
             URL url = new URL(baseApiUrl + "api/login");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
@@ -51,16 +49,10 @@ public class CraClientApiHttpUrlConnection {
             writer.close();
             os.close();
             conn.connect();
-            in = new BufferedInputStream(conn.getInputStream());
+            InputStream in = new BufferedInputStream(conn.getInputStream());
             return readStream(in);
-        }
-        catch (MalformedURLException e) {
-            // URL is invalid
-        } catch (SocketTimeoutException e) {
-            // data retrieval or connection timed out
         } catch (IOException e) {
-            // could not read response body
-            // (could not create input stream)
+            // Gérer l'erreur
         }
         return null;
     }
@@ -75,7 +67,6 @@ public class CraClientApiHttpUrlConnection {
             HttpURLConnection conn =  (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
             conn.connect();
 
             //Prevent special Caracters
@@ -101,7 +92,7 @@ public class CraClientApiHttpUrlConnection {
             HttpURLConnection conn =  (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.connect();
 
             //Prevent special Caracters
@@ -129,7 +120,7 @@ public class CraClientApiHttpUrlConnection {
             HttpURLConnection conn =  (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(10000);
             conn.setConnectTimeout(15000);
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);

@@ -1,14 +1,13 @@
 package com.sfeir.sfeircra.clientapi;
 
 import com.sfeir.sfeircra.cra.Cra;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.java8.Java8CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import static java.lang.System.out;
 
@@ -16,9 +15,9 @@ import static java.lang.System.out;
  *
  */
 public class CraClientApiMain {
-    static public void main(String[] argv) throws IOException {
-        //callWithRetrofit();
-        callWithUrlConnection();
+    static public void main(String[] argv) throws IOException, ExecutionException, InterruptedException {
+        callWithRetrofit();
+        //callWithUrlConnection();
     }
 
 
@@ -30,26 +29,20 @@ public class CraClientApiMain {
         printCra(cra);
     }
 
-    private static void callWithRetrofit() throws IOException {
+    private static void callWithRetrofit() throws IOException, ExecutionException, InterruptedException {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://sfeircra.appspot.com/")
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(Java8CallAdapterFactory.create())
                 .build();
 
         CraClientApi service = retrofit.create(CraClientApi.class);
 
-        String token = service.login("SFEIR.P", "SFEIR").execute().body();
+        String token = service.login("SFEIR.P", "SFEIR").get();
         out.println(token);
-        service.get(token).enqueue(new Callback<Cra>() {
-            public void onResponse(Call<Cra> call, Response<Cra> response) {
-                Cra cra = response.body();
-                printCra(cra);
-            }
-
-            public void onFailure(Call<Cra> call, Throwable t) {
-
-            }
+        service.get(token).thenAccept(cra -> {
+            printCra(cra);
         });
     }
 
